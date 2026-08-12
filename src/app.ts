@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import scanRoutes from "./routes/scan.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.get("/health", (_req, res) => {
 
 app.use("/scans", scanRoutes);
 app.use("/uploads", uploadRoutes);
+app.use("/auth", authRoutes);
 
 export default app;
