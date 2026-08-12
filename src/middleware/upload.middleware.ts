@@ -1,19 +1,4 @@
 import multer from "multer";
-import path from "path";
-import crypto from "crypto";
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, "uploads/");
-  },
-
-  filename: (_req, file, cb) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    const filename = `${crypto.randomUUID()}${extension}`;
-
-    cb(null, filename);
-  },
-});
 
 const fileFilter: multer.Options["fileFilter"] = (
   _req,
@@ -36,7 +21,7 @@ const fileFilter: multer.Options["fileFilter"] = (
 };
 
 export const uploadImage = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024,

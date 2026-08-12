@@ -2,7 +2,6 @@ import type { Response } from "express";
 import type { AuthRequest } from "../middleware/auth.middleware.js";
 import { createScan } from "../services/scan.service.js";
 import { processScan } from "../services/scan-analysis.service.js";
-import { ensureUser } from "../services/user.service.js";
 
 export async function uploadImageController(
   req: AuthRequest,
@@ -21,16 +20,25 @@ export async function uploadImageController(
   }
 
   try {
-    await ensureUser(req.userId);
-
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const imageUrl = `memory://${req.file.originalname}`;
 
     const scan = await createScan(
       req.userId,
       imageUrl,
     );
 
-    const analyzedScan = await processScan(scan.id);
+    const mediaType =
+      req.file.mimetype === "image/png"
+        ? "image/png"
+        : req.file.mimetype === "image/webp"
+          ? "image/webp"
+          : "image/jpeg";
+
+    const analyzedScan = await processScan(
+      scan.id,
+      req.file.buffer,
+      mediaType,
+    );
 
     return res.status(201).json({
       message: "Scan analyzed successfully",

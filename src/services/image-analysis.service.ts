@@ -10,9 +10,13 @@ export interface ImageAnalysisResult {
 }
 
 export async function analyzeImage(
-  imagePath: string,
+  imageBuffer: Buffer,
+  mediaType: "image/jpeg" | "image/png" | "image/webp",
 ): Promise<ImageAnalysisResult> {
-  const rawResult = await analyzeImageWithAI(imagePath);
+  const rawResult = await analyzeImageWithAI(
+    imageBuffer,
+    mediaType,
+  );
 
   let parsed: {
     aiGenerated: boolean;

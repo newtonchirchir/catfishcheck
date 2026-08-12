@@ -1,8 +1,11 @@
-import path from "path";
 import { prisma } from "../lib/prisma.js";
 import { analyzeImage } from "./image-analysis.service.js";
 
-export async function processScan(scanId: string) {
+export async function processScan(
+  scanId: string,
+  imageBuffer: Buffer,
+  mediaType: "image/jpeg" | "image/png" | "image/webp",
+) {
   const scan = await prisma.scan.findUnique({
     where: { id: scanId },
   });
@@ -19,12 +22,10 @@ export async function processScan(scanId: string) {
   });
 
   try {
-    const imagePath = path.join(
-      process.cwd(),
-      scan.imageUrl.replace(/^\/+/, ""),
+    const result = await analyzeImage(
+      imageBuffer,
+      mediaType,
     );
-
-    const result = await analyzeImage(imagePath);
 
     return await prisma.scan.update({
       where: { id: scanId },

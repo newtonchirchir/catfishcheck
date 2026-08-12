@@ -1,5 +1,3 @@
-import fs from "fs/promises";
-import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({
@@ -7,11 +5,10 @@ const client = new Anthropic({
 });
 
 export async function analyzeImageWithAI(
-  imagePath: string,
+  imageBuffer: Buffer,
+  mediaType: "image/jpeg" | "image/png" | "image/webp",
 ): Promise<string> {
   if (process.env.AI_PROVIDER === "mock") {
-    await fs.access(imagePath);
-
     return JSON.stringify({
       aiGenerated: false,
       aiConfidence: 0.12,
@@ -22,17 +19,7 @@ export async function analyzeImageWithAI(
     });
   }
 
-  const imageBuffer = await fs.readFile(imagePath);
   const base64Image = imageBuffer.toString("base64");
-
-  const extension = path.extname(imagePath).toLowerCase();
-
-  const mediaType =
-    extension === ".png"
-      ? "image/png"
-      : extension === ".webp"
-        ? "image/webp"
-        : "image/jpeg";
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-5",
@@ -87,4 +74,3 @@ Rules:
 
   return textBlock.text;
 }
-
