@@ -1,0 +1,61 @@
+// CatfishCheck database schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ScanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  scans        Scan[]
+
+  @@index([email])
+}
+
+model Scan {
+  id                   String     @id @default(cuid())
+  userId               String
+  imageUrl             String
+  status               ScanStatus @default(PENDING)
+
+  aiGenerated          Boolean?
+  aiConfidence         Float?
+
+  manipulationDetected Boolean?
+  reuseDetected        Boolean?
+
+  riskLevel            RiskLevel?
+  explanation          String?
+
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
